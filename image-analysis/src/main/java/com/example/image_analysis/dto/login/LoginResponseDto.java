@@ -1,5 +1,6 @@
 package com.example.image_analysis.dto.login;
 
+import com.example.image_analysis.entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,9 +16,16 @@ public class LoginResponseDto {
     private String name;
     private Integer planType;
     private boolean emailVerified;
+    private String accessToken;
 
-//    public LoginResponseDto(String loginId, String name, String nickname, Integer planType, boolean emailVerified) {
-//    }
-    // private String token;
+    public static LoginResponseDto from(Users users, String accessToken) {
+        return new LoginResponseDto(
+                users.getLoginId(),
+                users.getName(),
+                users.getPlanType(),
+                users.isEmailVerified(),
+                accessToken
+        );
+    }
 }
 
