@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class    UserSignDto {
+public class UserSignDto {
 
     @NotBlank(message = "아이디를 입력해주세요.")
     private String loginId;
@@ -21,7 +21,7 @@ public class    UserSignDto {
     @NotBlank(message = "비밀번호를 입력해주세요.")
     @Pattern(
             regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+=-]).{8,20}$",
-            message = "비밀번호는 영문+숫자+특수문자를 포함한 8~20자여야 합니다.")
+            message = "비밀번호는 영문+숫자+특수문자를 포함한 8~15자여야 합니다.")
     private String password;
 
     private String name;
@@ -35,6 +35,7 @@ public class    UserSignDto {
     private String birthday;
 
     public Users toEntity(PasswordEncoder passwordEncoder) {
+        System.out.println("toEntity - 전달할 email: " + email);
         return new Users(
                 loginId,
                 passwordEncoder.encode(password),   // 암호화

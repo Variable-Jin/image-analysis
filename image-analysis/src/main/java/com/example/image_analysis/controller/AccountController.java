@@ -1,5 +1,8 @@
 package com.example.image_analysis.controller;
 
+import com.example.image_analysis.JwtTokenProvider;
+import com.example.image_analysis.dto.login.LoginResponseDto;
+import com.example.image_analysis.dto.signup.SignUpResponseDto;
 import com.example.image_analysis.dto.signup.UserSignDto;
 import com.example.image_analysis.entity.Users;
 import com.example.image_analysis.repository.UserRepository;
@@ -9,8 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
 
     @Autowired
@@ -18,6 +23,9 @@ public class AccountController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
 
     /**
      * 최종 이메일 중복 체크
@@ -28,15 +36,16 @@ public class AccountController {
      */
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserSignDto signDto) {
+    public ResponseEntity<SignUpResponseDto> signup(@RequestBody UserSignDto signDto) {
         if (userRepository.existsByLoginId(signDto.getLoginId())) {
-            return ResponseEntity.status(
-                    HttpStatus.CONFLICT)
-                    .body("이미 존재하는 아이디입니다.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        accountService.signup(signDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
+        Users users = accountService.signup(signDto);
+        String token = jwtTokenProvider.createToken(users.getLoginId(), List.of("ROLE_USER"));
+
+        SignUpResponseDto response = new SignUpResponseDto(users.getLoginId(), users.getName(), token);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response); // ✅ 타입 일치
     }
 
     @GetMapping("/{loginId}/exists")
